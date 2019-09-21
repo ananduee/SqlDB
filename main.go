@@ -10,8 +10,13 @@ import (
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Please specify databse file path. Sample useg 'SqlDB fileName.db'")
+		return
+	}
+	fileName := os.Args[1]
 	scanner := bufio.NewScanner(os.Stdin)
-	table := storage.NewMemoryTable()
+	table := storage.NewTable(fileName)
 	for true {
 		fmt.Print("SqlDB > ")
 		scanner.Scan()

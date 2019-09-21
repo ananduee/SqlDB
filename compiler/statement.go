@@ -36,6 +36,7 @@ func Parse(rawStatement string) Statement {
 		if err != nil || tokenCount != 4 {
 			return Statement{Type: UNRECOGNIZED}
 		}
+		// Todo - add validations for input data.
 		copy(row.Username[:], []byte(userName))
 		copy(row.Email[:], []byte(email))
 		return Statement{Type: INSERT, DataRow: row}

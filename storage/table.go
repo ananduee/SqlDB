@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	pageSize        = 4096
+	pageSize        = 500
 	maxPagesInTable = 100
 	rowSize         = uint(unsafe.Sizeof(compiler.Row{}))
 	rowsPerPage     = pageSize / rowSize
@@ -23,15 +23,20 @@ var (
 
 type page [pageSize]byte
 
-// MemoryTable is in memory block for storage.
-type MemoryTable struct {
+// Table stores data for one block
+type Table struct {
 	rowsCount uint
+	pager     *pagerBlock
 	pages     [maxPagesInTable]*page
 }
 
-// NewMemoryTable Create new instance.
-func NewMemoryTable() *MemoryTable {
-	return &MemoryTable{rowsCount: 0}
+// NewTable Create new instance.
+func NewTable(fileName string) *Table {
+	pager, err := newPagerBlock(fileName)
+	if err != nil {
+		panic(err)
+	}
+	return &Table{rowsCount: 0, pager: pager}
 }
 
 func getLocationToInsert(rowsInTable uint) (pageNum, indexInPage uint) {
@@ -54,7 +59,7 @@ func insertIntoPage(p *page, row compiler.Row, indexInPage uint) {
 }
 
 // Insert a new row in table
-func (table *MemoryTable) Insert(row compiler.Row) error {
+func (table *Table) Insert(row compiler.Row) error {
 	pageNum, indexInPage := getLocationToInsert(table.rowsCount)
 	if pageNum >= maxPagesInTable {
 		return ErrorTableFull
@@ -70,7 +75,7 @@ func (table *MemoryTable) Insert(row compiler.Row) error {
 }
 
 // GetRows returns all rows present in the table.
-func (table *MemoryTable) GetRows() (rows []compiler.Row, err error) {
+func (table *Table) GetRows() (rows []compiler.Row, err error) {
 	for _, page := range table.pages {
 		if page == nil {
 			break
