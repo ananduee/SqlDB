@@ -6,10 +6,12 @@ import (
 	"os"
 
 	"github.com/ananduee/SqlDB/compiler"
+	"github.com/ananduee/SqlDB/storage"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+	table := storage.NewMemoryTable()
 	for true {
 		fmt.Print("SqlDB > ")
 		scanner.Scan()
@@ -21,9 +23,22 @@ func main() {
 			parsedStatement := compiler.Parse(text)
 			switch parsedStatement.Type {
 			case compiler.INSERT:
-				fmt.Println("This is to handle insert.")
+				err := table.Insert(parsedStatement.DataRow)
+				if err != nil {
+					fmt.Println("SqlDB > Failed to insert row. ErroCode = ", err)
+				} else {
+					fmt.Println("SqlDB > Succesfully inserted row.")
+				}
 			case compiler.SELECT:
-				fmt.Println("This is to handle select.")
+				rows, err := table.GetRows()
+				if err != nil {
+					fmt.Println("SqlDB > Failed to read rows. ErroCode = ", err)
+				} else {
+					for _, row := range rows {
+						fmt.Printf("(%d, %s, %s)\n", row.ID, row.Username, row.Email)
+					}
+					fmt.Println("SqlDB > Printed all rows.")
+				}
 			case compiler.UNRECOGNIZED:
 				fmt.Printf("SqlDB > Unrecognized command. '%s'\n", text)
 			}
