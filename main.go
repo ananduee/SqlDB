@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/ananduee/SqlDB/compiler"
 )
 
 func main() {
@@ -16,7 +18,15 @@ func main() {
 			fmt.Println("SqlDB > Closing :)")
 			break
 		} else {
-			fmt.Printf("SqlDB > Unrecognized command. '%s'\n", text)
+			parsedStatement := compiler.Parse(text)
+			switch parsedStatement.Type {
+			case compiler.INSERT:
+				fmt.Println("This is to handle insert.")
+			case compiler.SELECT:
+				fmt.Println("This is to handle select.")
+			case compiler.UNRECOGNIZED:
+				fmt.Printf("SqlDB > Unrecognized command. '%s'\n", text)
+			}
 		}
 	}
 }
