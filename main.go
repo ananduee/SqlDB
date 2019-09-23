@@ -37,7 +37,6 @@ func main() {
 					for _, row := range rows {
 						fmt.Printf("(%d, %s, %s)\n", row.ID, row.Username, row.Email)
 					}
-					fmt.Println("SqlDB > Printed all rows.")
 				}
 			case compiler.UNRECOGNIZED:
 				fmt.Printf("SqlDB > Unrecognized command. '%s'\n", text)
